@@ -29,7 +29,10 @@ USER_TABLE = "user"
 APP_DIR = Path(__file__).resolve().parent
 REPO_ROOT = APP_DIR.parents[1]
 ENV_PATH = REPO_ROOT / ".env"
-LOGO_PATH = REPO_ROOT / "logo.png"
+LOGO_PATHS = (
+    APP_DIR / "logo.png",       # Streamlit Cloud: 앱과 함께 배포
+    REPO_ROOT / "logo.png",     # 로컬: 저장소 루트
+)
 LOG_DIR = APP_DIR / "logs"
 
 load_dotenv(dotenv_path=ENV_PATH)
@@ -752,11 +755,19 @@ def _render_auth(client: Client) -> None:
                 st.error(msg)
 
 
+def _logo_path() -> Path | None:
+    for path in LOGO_PATHS:
+        if path.is_file():
+            return path
+    return None
+
+
 def _render_header() -> None:
     c1, c2, c3 = st.columns([1, 4, 1])
     with c1:
-        if LOGO_PATH.is_file():
-            st.image(str(LOGO_PATH), width=180)
+        logo = _logo_path()
+        if logo:
+            st.image(str(logo), width=180)
         else:
             st.markdown("### 📚")
     with c2:
